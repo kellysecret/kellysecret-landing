@@ -248,161 +248,97 @@ const countries = {
     ye: 'Yemen',
     zm: 'Zambia',
     zw: 'Zimbabwe',
-}
-const setLocationPeriod = (location) => {
-    const contentColab = document.getElementById('content-colab-info')
-    const locationInfo = document.getElementById('location-info')
-
-    //  📍Haarlem, Netherlands
-    locationInfo.innerHTML = `📍${location.city}, ${countries[location.country.toLowerCase()]}`;
-
-    //  Just moved to Haarlem looking for someone to make content with me😊
-    contentColab.innerHTML = `Just moved to ${location.city} looking for someone to make content with me😊`
-
-}
-
-const getLocation = async () => {
-    const reponse = await fetch('https://ipinfo.io?token=2c5027935626e9')
-    const result = await reponse.json()
-    setLocationPeriod(result)
-    return result
-}
-
-let images = [
-    'images/1.jpg',
-    'images/2.jpg',
-    'images/3.jpg',
-    'images/4.jpg',
-    'images/5.jpg',
-]
-
-let mobileImages = [
-    'images/2.jpg',
-    'images/3.jpg',
-    'images/4.jpg',
-]
-
-let selectedImage = images[2];
-let mobileSelectedImage = images[1];
-
-
-function setImages() {
-    let image1 = document.getElementById('1');
-    let image2 = document.getElementById('2');
-    let image3 = document.getElementById('3');
-    let image4 = document.getElementById('4');
-    let image5 = document.getElementById('5');
-
-    // change the source 
-    image1.src = images[0];
-    image2.src = images[1];
-    image3.src = images[2];
-    image4.src = images[3];
-    image5.src = images[4];
-
-    // add event listener
-    image1.addEventListener('click', () => {
-        changeImage(image1)
-
-    })
-    image2.addEventListener('click', () => {
-        changeImage(image2)
-
-    })
-    image3.addEventListener('click', () => {
-        changeImage(image3)
-
-    })
-    image4.addEventListener('click', () => {
-        changeImage(image4)
-
-    })
-    image5.addEventListener('click', () => {
-        changeImage(image5)
-
-    })
-}
-
-function getNthImageFromArray(n) {
-    // should support negative numbers and numbers bigger than the array length
-    let index = n % images.length;
-    if (index < 0) {
-        index = images.length + index;
+  }
+  window.addEventListener('load', () => {
+    const timer = document.getElementById('timer')
+    const updateTimer = (seconds) => {
+      const hours = Math.floor(seconds / 3600)
+      const minutes = Math.floor((seconds % 3600) / 60)
+      const remainingSeconds = seconds % 60
+      if (timer) {
+        timer.innerHTML = `${hours}h ${minutes < 10 ? '0' : ''}${minutes}m ${
+          remainingSeconds < 10 ? '0' : ''
+        }${remainingSeconds}s`
+      }
     }
-    return images[index];
-}
-
-function getNthImageFromMobileArray(n) {
-    // should support negative numbers and numbers bigger than the array length
-    let index = n % mobileImages.length;
-    if (index < 0) {
-        index = mobileImages.length + index;
+  
+    const startCountdown = () => {
+      const savedCountdownTime = localStorage.getItem('countdownTime')
+      let seconds =
+        savedCountdownTime > 0 ? parseInt(savedCountdownTime, 10) : (60 * 32) + 30
+  
+      updateTimer(seconds)
+  
+      const countdownInterval = setInterval(() => {
+        seconds--
+        updateTimer(seconds)
+        localStorage.setItem('countdownTime', seconds.toString())
+  
+        if (seconds <= 0) {
+          clearInterval(countdownInterval)
+          startCountdown() // Restart the countdown
+        }
+      }, 1000)
     }
-    return mobileImages[index];
-}
-
-
-function changeImage(image) {
-    // the image sources will be shifted to the correct position after the click
-    let image3 = document.getElementById('3');
-    // change it's source to the current image
-    image3.src = image.src;
-    let splitted = image.src.split('/');
-    let filename = 'images/' + splitted[splitted.length - 1];
-    let index = images.indexOf(filename);
-    // change the source of all the other images
-    let image1 = document.getElementById('1');
-    let image2 = document.getElementById('2');
-    let image4 = document.getElementById('4');
-    let image5 = document.getElementById('5');
-    image1.src = getNthImageFromArray(index - 2);
-    image2.src = getNthImageFromArray(index - 1);
-    image4.src = getNthImageFromArray(index + 1);
-    image5.src = getNthImageFromArray(index + 2);
-}
-
-function changeMobileImage(image) {
-    // the image sources will be shifted to the correct position after the click
-    let image2 = document.getElementById('mob-2');
-    // change it's source to the current image
-    image2.src = image.src;
-    let splitted = image.src.split('/');
-    let filename = 'images/' + splitted[splitted.length - 1];
-    let index = mobileImages.indexOf(filename);
-    // change the source of all the other images
-    let image1 = document.getElementById('mob-1');
-    let image3 = document.getElementById('mob-3');
-    image1.src = getNthImageFromMobileArray(index - 1);
-    image3.src = getNthImageFromMobileArray(index + 1);
-}
-
-function setMobileImages() {
-    let image1 = document.getElementById('mob-1');
-    let image2 = document.getElementById('mob-2');
-    let image3 = document.getElementById('mob-3');
-
-    // change the source 
-    image1.src = images[0];
-    image2.src = images[1];
-    image3.src = images[2];
-
-    // add event listener
-    image1.addEventListener('click', () => {
-        changeMobileImage(image1)
-    })
-    image2.addEventListener('click', () => {
-        changeMobileImage(image2)
-    })
-    image3.addEventListener('click', () => {
-        changeMobileImage(image3)
-    })
-}
-
-
-window.addEventListener('load', () => {
+  
+    const startAvailableCountdown = () => {
+      const isAvailable = localStorage.getItem('isAvailable')
+      const availableBlock = document.getElementById('available')
+      const userStatusBlock = document.getElementById('user-status')
+      if (isAvailable === 'true') {
+        availableBlock.innerHTML = 'Available now'
+        userStatusBlock.classList.add('available')
+      } else {
+        setTimeout(() => {
+          availableBlock.innerHTML = 'Available now'
+          userStatusBlock.classList.add('available')
+          localStorage.setItem('isAvailable', 'true')
+        }, 2000)
+      }
+    }
+  
+    startAvailableCountdown()
+  
+    startCountdown()
+  
+    const subtractDaysFromDate = (days) => {
+      const currentDate = new Date()
+      const newDate = new Date(currentDate)
+  
+      if (days < 0) {
+        newDate.setDate(currentDate.getDate() - -days)
+      } else {
+        newDate.setDate(currentDate.getDate() + days)
+      }
+      return newDate.toString().toLowerCase()
+    }
+  
+    const setLocationPeriod = (location) => {
+      const locationPeriod = document.getElementById('time-in-current-location')
+      const locationName = document.getElementById('location-name')
+      locationName.innerHTML = `${location.city}, ${
+        countries[location.country.toLowerCase()]
+      }`
+  
+      locationPeriod.innerHTML = `I’m staying in ${location.city.toLowerCase()} from ${subtractDaysFromDate(-4).substring(
+        3,
+        10,
+      )} to ${subtractDaysFromDate(2).substring(
+        3,
+        10,
+      )} 🥰 <br/> matches only: send me a ❤️
+          in my DMs`
+    }
+  
+    const getLocation = async () => {
+      const reponse = await fetch('https://ipinfo.io?token=2c5027935626e9')
+      const result = await reponse.json()
+      setLocationPeriod(result)
+      return result
+    }
+  
     getLocation()
-    setImages()
-    setMobileImages()
-})
-
-
+  })
+  
+  
+  
